@@ -1,0 +1,121 @@
+local Players = game:GetService("Players")
+local UIS = game:GetService("UserInputService")
+
+local player = Players.LocalPlayer
+local char = player.Character or player.CharacterAdded:Wait()
+local humanoid = char:WaitForChild("Humanoid")
+local hrp = char:WaitForChild("HumanoidRootPart")
+
+------------------------------------------------
+-- GUI
+------------------------------------------------
+local gui = Instance.new("ScreenGui")
+gui.Name = "ElitePanel"
+gui.Parent = player:WaitForChild("PlayerGui")
+
+local main = Instance.new("Frame")
+main.Size = UDim2.new(0, 250, 0, 220)
+main.Position = UDim2.new(0.05, 0, 0.3, 0)
+main.BackgroundColor3 = Color3.fromRGB(25,25,25)
+main.Parent = gui
+
+local corner = Instance.new("UICorner", main)
+corner.CornerRadius = UDim.new(0, 12)
+
+------------------------------------------------
+-- X Close Button
+------------------------------------------------
+local close = Instance.new("TextButton")
+close.Size = UDim2.new(0, 30, 0, 30)
+close.Position = UDim2.new(1, -35, 0, 5)
+close.Text = "X"
+close.BackgroundColor3 = Color3.fromRGB(200, 50, 50)
+close.TextColor3 = Color3.new(1,1,1)
+close.Parent = main
+
+close.MouseButton1Click:Connect(function()
+	gui:Destroy()
+end)
+
+------------------------------------------------
+-- SPEED BUTTON
+------------------------------------------------
+local speedBtn = Instance.new("TextButton")
+speedBtn.Size = UDim2.new(0, 200, 0, 40)
+speedBtn.Position = UDim2.new(0, 25, 0, 40)
+speedBtn.Text = "Speed: OFF"
+speedBtn.Parent = main
+
+local speedOn = false
+
+speedBtn.MouseButton1Click:Connect(function()
+	speedOn = not speedOn
+	if speedOn then
+		humanoid.WalkSpeed = 32
+		speedBtn.Text = "Speed: ON"
+	else
+		humanoid.WalkSpeed = 16
+		speedBtn.Text = "Speed: OFF"
+	end
+end)
+
+------------------------------------------------
+-- FLY SYSTEM
+------------------------------------------------
+local flyBtn = Instance.new("TextButton")
+flyBtn.Size = UDim2.new(0, 200, 0, 40)
+flyBtn.Position = UDim2.new(0, 25, 0, 90)
+flyBtn.Text = "Fly: OFF"
+flyBtn.Parent = main
+
+local flying = false
+local bv
+
+flyBtn.MouseButton1Click:Connect(function()
+	flying = not flying
+
+	if flying then
+		bv = Instance.new("BodyVelocity")
+		bv.MaxForce = Vector3.new(999999,999999,999999)
+		bv.Velocity = Vector3.new(0,0,0)
+		bv.Parent = hrp
+
+		flyBtn.Text = "Fly: ON"
+	else
+		if bv then bv:Destroy() end
+		flyBtn.Text = "Fly: OFF"
+	end
+end)
+
+UIS.InputBegan:Connect(function(input)
+	if flying then
+		local move = Vector3.zero
+
+		if input.KeyCode == Enum.KeyCode.W then move = move + Vector3.new(0,0,-50) end
+		if input.KeyCode == Enum.KeyCode.S then move = move + Vector3.new(0,0,50) end
+		if input.KeyCode == Enum.KeyCode.A then move = move + Vector3.new(-50,0,0) end
+		if input.KeyCode == Enum.KeyCode.D then move = move + Vector3.new(50,0,0) end
+		if input.KeyCode == Enum.KeyCode.Space then move = move + Vector3.new(0,50,0) end
+		if input.KeyCode == Enum.KeyCode.LeftShift then move = move + Vector3.new(0,-50,0) end
+
+		if bv then
+			bv.Velocity = move
+		end
+	end
+end)
+
+------------------------------------------------
+-- SIMPLE MESSAGE BUTTON
+------------------------------------------------
+local msgBtn = Instance.new("TextButton")
+msgBtn.Size = UDim2.new(0, 200, 0, 40)
+msgBtn.Position = UDim2.new(0, 25, 0, 140)
+msgBtn.Text = "Send Message"
+msgBtn.Parent = main
+
+msgBtn.MouseButton1Click:Connect(function()
+	game.StarterGui:SetCore("ChatMakeSystemMessage", {
+		Text = "Hello from Admin Panel!";
+		Color = Color3.fromRGB(0,255,0);
+	})
+end)
